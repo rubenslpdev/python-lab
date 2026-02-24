@@ -1,3 +1,3 @@
 # Python projects
 
-Studies and automation Python scripts
+Studies and Python scripts for automation

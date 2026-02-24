@@ -60,7 +60,7 @@ Um script em Python simples e eficiente que extrai dados financeiros (Ações da
    }
    ```
 
-## ▶️ Como Usar
+##  Como Usar
 
 Com as configurações prontas, basta executar o script principal:
 
@@ -92,5 +92,4 @@ Exemplo de Cron Job para rodar de segunda a sexta às 18:30:
 
 ##  Licença
 Este projeto é de código aberto e está disponível sob a licença MIT. Sinta-se à vontade para clonar, modificar e utilizar!
-```
 

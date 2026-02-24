@@ -81,7 +81,7 @@ def gerar_relatorio():
     stocks = config["ativos"]["stocks"]
     criptos = config["ativos"]["criptos"]
 
-    linhas_relatorio = ["📊 <b>Relatório Diário de Ativos</b>\n"]
+    linhas_relatorio = ["📊 <b>Relatório Semanal de Ativos</b>\n"]
 
     # Processar Ações Brasileiras (B3)
     linhas_relatorio.append("🏢 <b>Ações (B3) e Índice</b>")
@@ -93,7 +93,7 @@ def gerar_relatorio():
             nome_amigavel = symbol.replace('.SA', '') # Remove o .SA pra ficar mais bonito
             linhas_relatorio.append(
                 f"🔸 <b>{nome_amigavel}</b>: R$ {dados['preco']:.2f} | {dados['tendencia']}\n"
-                f"   └ <i>Min 7d: R$ {dados['min_7d']:.2f} / Max 7d: R$ {dados['max_7d']:.2f}</i>"
+                f"   └ <i>Min: R$ {dados['min_7d']:.2f} / Max: R$ {dados['max_7d']:.2f}</i>"
             )
 
     linhas_relatorio.append("\n🪙 <b>Criptomoedas</b>")
@@ -105,7 +105,7 @@ def gerar_relatorio():
             # Formatação especial para USD ($)
             linhas_relatorio.append(
                 f"🔸 <b>{symbol}</b>: $ {dados['preco']:,.2f} | {dados['tendencia']}\n"
-                f"   └ <i>Min 7d: $ {dados['min_7d']:,.2f} / Max 7d: $ {dados['max_7d']:,.2f}</i>"
+                f"   └ <i>Min: $ {dados['min_7d']:,.2f} / Max: $ {dados['max_7d']:,.2f}</i>"
             )
 
     # Junta tudo e envia
