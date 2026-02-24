@@ -19,30 +19,30 @@ def buscar_dados_ativo(ticker_symbol):
     try:
         ativo = yf.Ticker(ticker_symbol)
         
-        # Puxa 2 meses de histórico para garantir que tenhamos 20 dias úteis para a SMA
+        # Puxa 2 meses de histórico
         hist = ativo.history(period="2mo")
         
         if hist.empty:
             return None
 
-        # Preço Atual (último fechamento)
+        # Preço Atual
         preco_atual = hist['Close'].iloc[-1]
 
-        # Mínimo e Máximo dos últimos 7 pregões/dias
+        # Mínimo e Máximo dos últimos 7 pregões
         ultimos_7_dias = hist.tail(7)
         min_7d = ultimos_7_dias['Low'].min()
         max_7d = ultimos_7_dias['High'].max()
 
-        # SMA de 20 períodos (Média Móvel Simples de 20 dias)
+        # SMA de 20 períodos
         sma_20 = hist['Close'].rolling(window=20).mean().iloc[-1]
 
-        # Lógica de Tendência
+        # Lógica de Tendência 
         if preco_atual > sma_20:
-            tendencia = "Alta 📈"
+            tendencia = "📈"
         elif preco_atual < sma_20:
-            tendencia = "Baixa 📉"
+            tendencia = "📉"
         else:
-            tendencia = "Neutra ➖"
+            tendencia = "➖"
 
         return {
             "ticker": ticker_symbol,
@@ -66,7 +66,7 @@ def enviar_mensagem_telegram(mensagem):
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
         "text": mensagem,
-        "parse_mode": "HTML" # Permite usar negrito <b> no telegram
+        "parse_mode": "HTML" # Usar HTML para evitar erros com caracteres especiais como o "-" do BTC-USD
     }
     
     response = requests.post(url, json=payload)
@@ -81,35 +81,44 @@ def gerar_relatorio():
     stocks = config["ativos"]["stocks"]
     criptos = config["ativos"]["criptos"]
 
-    linhas_relatorio = ["📊 <b>Relatório Semanal de Ativos</b>\n"]
+    linhas_relatorio = []
+    
+    # Cabeçalho Principal
+    linhas_relatorio.append("📊 <b>Relatório Semanal de Ativos</b>")
+    linhas_relatorio.append("🏢 <b>Ações (B3) e Índice</b>")
 
     # Processar Ações Brasileiras (B3)
-    linhas_relatorio.append("🏢 <b>Ações (B3) e Índice</b>")
     for item in stocks:
         symbol = item["ticker"]
         dados = buscar_dados_ativo(symbol)
         if dados:
-            # Formatação especial para BRL (R$)
-            nome_amigavel = symbol.replace('.SA', '') # Remove o .SA pra ficar mais bonito
-            linhas_relatorio.append(
-                f"🔸 <b>{nome_amigavel}</b>: R$ {dados['preco']:.2f} | {dados['tendencia']}\n"
-                f"   └ <i>Min: R$ {dados['min_7d']:.2f} / Max: R$ {dados['max_7d']:.2f}</i>"
+            nome_amigavel = symbol.replace('.SA', '') # Remove o .SA
+            
+            bloco_acao = (
+                f"<b>{nome_amigavel}</b>\n"
+                f"R$ {dados['preco']:.2f} {dados['tendencia']}\n"
+                f"└ Min: R$ {dados['min_7d']:.2f} / Max: R$ {dados['max_7d']:.2f}"
             )
+            linhas_relatorio.append(bloco_acao)
 
-    linhas_relatorio.append("\n🪙 <b>Criptomoedas</b>")
+    linhas_relatorio.append("---")
+    linhas_relatorio.append("🪙 <b>Criptomoedas</b>")
+
     # Processar Criptomoedas
     for item in criptos:
         symbol = item["ticker"]
         dados = buscar_dados_ativo(symbol)
         if dados:
-            # Formatação especial para USD ($)
-            linhas_relatorio.append(
-                f"🔸 <b>{symbol}</b>: $ {dados['preco']:,.2f} | {dados['tendencia']}\n"
-                f"   └ <i>Min: $ {dados['min_7d']:,.2f} / Max: $ {dados['max_7d']:,.2f}</i>"
+            # Formatação especial para USD ($) com vírgula para milhares
+            bloco_cripto = (
+                f"<b>{symbol}</b>\n"
+                f"$ {dados['preco']:,.2f} {dados['tendencia']}\n"
+                f"└ Min: $ {dados['min_7d']:,.2f} / Max: $ {dados['max_7d']:,.2f}"
             )
+            linhas_relatorio.append(bloco_cripto)
 
-    # Junta tudo e envia
-    mensagem_final = "\n".join(linhas_relatorio)
+    # O join com "\n\n" garante que haja uma linha em branco entre cada bloco de ativo e título
+    mensagem_final = "\n\n".join(linhas_relatorio)
     enviar_mensagem_telegram(mensagem_final)
 
 if __name__ == "__main__":

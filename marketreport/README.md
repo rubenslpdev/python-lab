@@ -23,7 +23,7 @@ Um script em Python simples e eficiente que extrai dados financeiros (Ações da
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/rubenslpdev/marketreport.git
+   git clone https://github.com/rubenslpdev/python/marketreport.git
    cd marketreport 
    ```
 
